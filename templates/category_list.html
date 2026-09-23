@@ -24,6 +24,7 @@
     <script>
         const socket = io();
         const categoryKey = "{{ category_key }}"; // למשל: restaurants
+        <img src="{{ url_for('static', filename='restaurant.jpg') }}"/>
 
         // שליחת רעיון חדש
         function addIdea() {
@@ -40,7 +41,7 @@
         }
 
         // טעינת רעיונות בקבלת מידע מהשרת
-        socket.on('load_ideas', function(ideas) {
+        socket.on('load_ideas', function (ideas) {
             const list = document.getElementById('ideas-list');
             list.innerHTML = '';
             ideas.forEach(item => {
@@ -53,7 +54,7 @@
         });
 
         // קבלת רעיון חדש בזמן אמת
-        socket.on('receive_idea', function(data) {
+        socket.on('receive_idea', function (data) {
             if (data.category === categoryKey) {
                 const list = document.getElementById('ideas-list');
                 const li = document.createElement('li');

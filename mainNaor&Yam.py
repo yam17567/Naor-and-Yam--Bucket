@@ -5,6 +5,15 @@ from flask_socketio import SocketIO, emit
 from supabase import create_client, Client
 from models import db, Group, Member
 
+# פונקציית עזר למציאת הקוד הפנוי הקטן ביותר (בין 1 ל-1000)
+def get_suggested_pin():
+    used_pins = {m.pin for m in Member.query.all() if m.pin}
+    for i in range(1, 1001):
+        pin_str = str(i)
+        if pin_str not in used_pins:
+            return pin_str
+    return "1001"
+
 # 1. יצירת האפליקציה והגדרות בסיס
 app = Flask('Naor&Yam-Bucket', template_folder='templates', static_folder='static')
 app.config['SECRET_KEY'] = '050426_Love'
@@ -106,17 +115,14 @@ def show_data():
 # התחברות לפי קוד קבוצה + קוד משתמש
 @app.post("/login")
 def login():
-    group_pin = request.form.get("group_pin", "").strip()
     member_pin = request.form.get("member_pin", "").strip()
-
-    # חיפוש הקבוצה והמשתמש במסד הנתונים
-    group = Group.query.filter_by(pin=group_pin).first()
-    member = Member.query.filter_by(group_id=group.id if group else None, pin=member_pin).first() if group else None
-
-    if not group or not member:
-        flash("קוד קבוצה או קוד משתמש לא תקינים 💔")
+    # חיפוש המשתמש לפי הקוד האישי הייחודי שלו
+    member = Member.query.filter_by(pin=member_pin).first()
+    if not member:
+        flash("קוד משתמש לא קיים או שגוי 💔")
         return redirect(url_for("home"))
-
+    # שמירת המשתתף והקבוצה בסשן/העברה לדף הבית
+    return redirect(url_for("base_screen_dashboard"))
     # מעבר לעמוד הבית הראשי לאחר התחברות בהצלחה!
     return redirect(url_for("base_screen_dashboard"))
 
@@ -127,56 +133,51 @@ def login():
 # טופס יצירת קבוצה חדשה (GET)
 @app.get("/create_group")
 def create_group_form():
-    return render_template("sign_up.html")  # ודאי ששם הקובץ ב-templates זהה בדיוק
+    suggested_pin = get_suggested_pin()
+    return render_template("sign_up.html", suggested_pin=suggested_pin)
 
 
-# קליטת ושמירת קבוצה חדשה (POST)
+# 3. קליטת קבוצה ומשתמשים עם בדיקת קודים תפוסים
 @app.post("/create_group")
 def create_group():
     group_name = request.form.get("group_name", "").strip()
-    group_pin = request.form.get("group_pin", "").strip()
 
-    # אם לא הוזן קוד קבוצה בטופס, מייצרים קוד אוטומטי
-    if not group_pin:
-        group_pin = str(Group.query.count() + 1001)
+    # איסוף השמות והקודים שהוזנו בטופס
+    member_names = request.form.getlist("member_name")
+    member_pins = request.form.getlist("member_pin")
 
-    # בדיקה אם קוד הקבוצה כבר קיים
-    if Group.query.filter_by(pin=group_pin).first():
-        flash("קוד הקבוצה כבר קיים במערכת, בחר קוד אחר 💔")
+    # בדיקת תקינות: האם אחד הקודים שהוזנו כבר תפוס במערכת?
+    existing_pins = {m.pin for m in Member.query.all() if m.pin}
+    requested_pins = [p.strip() for p in member_pins if p.strip()]
+
+    # בדיקה אם יש כפילות בתוך הטופס עצמו
+    if len(requested_pins) != len(set(requested_pins)):
+        flash("אי אפשר לבחור את אותו קוד עבור שני משתתפים בטופס 💔")
         return redirect(url_for("create_group_form"))
 
-    # 1. יצירת הקבוצה ושמירתה ב-DB
-    new_group = Group(name=group_name, pin=group_pin)
+    # בדיקה אם קוד כבר תפוס במסד הנתונים
+    for pin in requested_pins:
+        if pin in existing_pins:
+            flash(f"הקוד {pin} כבר תפוס במערכת! אנא בחרו קוד אחר 💔")
+            return redirect(url_for("create_group_form"))
+
+    # יצירת הקבוצה
+    new_group = Group(name=group_name, pin=str(Group.query.count() + 1001))
     db.session.add(new_group)
     db.session.commit()
 
-    # 2. איסוף המשתתפים מ-signUp.html (רשימה בלולאה מוגדרת)
-    member_names = request.form.getlist("member_name")
-    if member_names:
-        for i, name in enumerate(member_names):
-            if name.strip():
-                member = Member(name=name.strip(), pin=str(i + 1), group_id=new_group.id)
-                db.session.add(member)
+    # שמירת המשתתפים עם הקודים המותאמים אישית שלהם
+    created_summary = []
+    for name, pin in zip(member_names, member_pins):
+        if name.strip() and pin.strip():
+            m = Member(name=name.strip(), pin=pin.strip(), group_id=new_group.id)
+            db.session.add(m)
+            created_summary.append(f"{name.strip()} (קוד: {pin.strip()})")
 
-    # 3. איסוף המשתתפים מ-setting.html (שדות ממוספרים: user1, user2...)
-    for i in range(1, 20):  # בודק עד 20 משתתפים מקסימום (מונע לולאה אינסופית)
-        user_name = request.form.get(f"user{i}")
-        user_pin = request.form.get(f"user{i}_pin") or str(i)
-
-        if user_name and user_name.strip():
-            member = Member(name=user_name.strip(), pin=str(user_pin).strip(), group_id=new_group.id)
-            db.session.add(member)
-
-    # שמירה סופית של המשתתפים
     db.session.commit()
 
-    # בסוף פונקציית create_group:
-    flash(f"שימו לב 💕 הקבוצה '{group_name}' נוצרה בהצלחה!\n"
-          f"קוד הקבוצה להתחברות: {new_group.pin}\n"
-          f"קוד משתמש עבור {member_names[0]}: 1 | קוד משתמש עבור {member_names[1] if len(member_names) > 1 else 'השני'}: 2")
-
+    flash(f"הקבוצה '{group_name}' נוצרה בהצלחה! 🎉\nפרטי התחברות:\n" + "\n".join(created_summary))
     return redirect(url_for("home"))
-
 
 # ------------------------------------------------------
 # 🗑️ מחיקת קבוצה

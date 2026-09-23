@@ -2,38 +2,37 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Naor&Yam-Bucket</title>
+    <title>התחברות - Naor&Yam Bucket</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-
 <body class="landing">
 <main id="main-container">
-    <h1 lang="en" dir="ltr">Welcome to Naor & Yam - Bucket 💕</h1>
+    <div class="welcome-header">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="לוגו" class="login-logo">
+        <h1>Welcome to Naor & Yam - Bucket 💕</h1>
+    </div>
+
+    <!-- הודעות שגיאה/הצלחה -->
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <div style="background-color: #e0f7fa; color: #00695c; padding: 15px; border-radius: 10px; margin-bottom: 20px; white-space: pre-line; border: 1px solid #004d40;">
+        <div class="flash-message">
           {% for message in messages %}
-            <p style="margin: 0; font-weight: bold;">{{ message }}</p>
+            <p>{{ message }}</p>
           {% endfor %}
         </div>
       {% endif %}
     {% endwith %}
+
     <form method="POST" action="{{ url_for('login') }}">
-        <label for="group_pin">קוד קבוצה (PIN):</label>
-        <input id="group_pin" name="group_pin" type="text" inputmode="numeric" placeholder="למשל: 1" required>
+        <label for="member_pin">🔑 הכנס קוד משתמש אישי:</label>
+        <input id="member_pin" name="member_pin" type="text" placeholder="למשל: 12" required>
         <br><br>
-
-        <label for="member_pin">קוד משתמש (1 או 2):</label>
-        <input id="member_pin" name="member_pin" type="text" inputmode="numeric" placeholder="למשל: 1" required>
-        <br><br>
-
         <button type="submit" id="login-btn">התחברות 🚀</button>
     </form>
 
     <br>
     <form action="{{ url_for('create_group_form') }}">
-        <button id="new_group-btn">קבוצה חדשה</button>
+        <button id="new_group-btn">➕ יצירת קבוצה חדשה</button>
     </form>
 </main>
 </body>

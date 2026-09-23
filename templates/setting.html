@@ -44,8 +44,25 @@
 
         <button type="submit" id="create-btn">צור קבוצה</button>
     </form>
-
     <a href="{{ url_for('home') }}" id="back-link">← חזרה לדף הראשי</a>
+
+    <h2>⚙️ הגדרות הקבוצה: {{ group.name }}</h2>
+
+    <!-- תצוגת תמונת הקובר העכשווית -->
+    <div class="group-cover-preview">
+        <h3>🖼️ תמונת הרקע של הקבוצה:</h3>
+        <img src="{{ group.cover_url or url_for('static', filename='background.jpg') }}" class="cover-card-img" alt="תמונת נושא">
+    </div>
+
+    <!-- טופס עדכון עיצוב -->
+    <form method="POST" action="/update_group_theme">
+        <label>🔗 קישור לתמונת נושא חדשה (URL):</label>
+        <input type="url" name="cover_url" placeholder="https://example.com/my-photo.jpg">
+
+        <br><br>
+        <button type="submit" class="save-btn">💾 שמור שינויי עיצוב</button>
+    </form>
+
 </main>
 
 <script>

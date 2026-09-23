@@ -66,13 +66,18 @@
 
         <!-- חלק חברי הקבוצה (מוצג כברירת מחדל) -->
         <section id="members-section" style="display: block; margin-top: 15px;">
-            <h3 id="members-title">חברי הזוג 💞:</h3>
-
+            <h3>חברי הקבוצה והקודים האישיים שלהם 💞:</h3>
+            <p class="hint-text">💡 רמז: הקוד החופשי הקטן ביותר כרגע במערכת הוא <b>{{ suggested_pin }}</b></p>
             <div id="members-list">
-                <input type="text" name="member_name" placeholder="שם משתתף ראשון (קוד: 1)" required>
-                <input type="text" name="member_name" placeholder="שם משתתף שני (קוד: 2)" required>
+                <div class="member-row">
+                    <input type="text" name="member_name" placeholder="שם משתמש 1" required>
+                    <input type="text" name="member_pin" placeholder="קוד אישי (למשל: {{ suggested_pin }})" required>
+                </div>
+                <div class="member-row">
+                    <input type="text" name="member_name" placeholder="שם משתמש 2" required>
+                    <input type="text" name="member_pin" placeholder="קוד אישי" required>
+                </div>
             </div>
-
             <br>
             <button type="button" class="add-btn" onclick="addMemberField()">➕ הוסף משתתף</button>
             <br><br>
