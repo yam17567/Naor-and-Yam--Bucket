@@ -1,0 +1,112 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif; /* גופן נקי ונעים */
+    background: linear-gradient(180deg, #74EBD5 0%, #ACB6E5 100%); /* גרדיאנט רך של כחול-סגול */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#main-container {
+    background: #ffffffb0; /* לבן עם שקיפות עדינה */
+    backdrop-filter: blur(10px); /* טשטוש הרקע מאחור, אפקט זכוכית */
+    border-radius: 20px; /* פינות מעוגלות */
+    padding: 30px 40px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* צל רך */
+    text-align: center;
+    width: min(90vw, 420px); /* מתאים גם למובייל */
+}
+/* עיצוב כרטיסיות התפריט בדף הבית */
+.menu-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.menu-card {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.menu-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.menu-card .icon {
+    font-size: 28px;
+    margin-left: 15px;
+}
+
+.menu-card h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+/* כפתור חזרה לדף הבית */
+.back-btn {
+    display: inline-block;
+    margin-bottom: 15px;
+    color: #444;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+h1 {
+    color: #222;
+    font-weight: 700;
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+}
+label {
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 6px;
+}
+
+input {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+}
+
+input:focus {
+    border-color: #74EBD5;
+    box-shadow: 0 0 6px rgba(116, 235, 213, 0.7);
+}
+
+button {
+    width: 100%;
+    background: #74EBD5;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    color: #222;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #ACB6E5;
+    color: #000;
+    transform: scale(1.02);
+}

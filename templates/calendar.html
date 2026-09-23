@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naor & Yam - יומן משותף</title>
+
+    <!-- עיצוב כללי -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <!-- ספרית FullCalendar לקלנדר מודרני -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+    <!-- Socket.io לתקשורת בזמן אמת -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+
+    <style>
+        /* התאמות עיצוב קלות ללוח השנה */
+        #calendar-container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 20px auto;
+            color: #333;
+        }
+        .fc {
+            direction: rtl; /* סדר ימים מימין לשמאל */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .fc-header-toolbar {
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="calendar-container">
+        <a href="/" class="back-btn">➡️ חזרה לדף הבית</a>
+        <h2>📅 היומן המשותף שלנו</h2>
+        <div id="calendar"></div>
+    </div>
+
+    <script>
+        const socket = io();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+
+            // הגדרת לוח השנה
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'he',             // שפה עברית
+                firstDay: 0,              // 0 = יום ראשון (העמודה הכי ימנית ב-RTL)
+                direction: 'rtl',          // כיוון מימין לשמאל
+                headerToolbar: {
+                    right: 'prev,next today',
+                    center: 'title',
+                    left: 'dayGridMonth,timeGridWeek'
+                },
+                buttonText: {
+                    today: 'היום',
+                    month: 'חודש',
+                    week: 'שבוע'
+                },
+                // לחיצה על תא בלוח השנה להוספת אירוע חדש
+                dateClick: function(info) {
+                    const title = prompt('הכנס שם לאירוע/תזכורת:');
+                    if (title) {
+                        const newEvent = {
+                            title: title,
+                            start: info.dateStr
+                        };
+                        // שליחת האירוע לשרת ב-WebSocket
+                        socket.emit('add_calendar_event', newEvent);
+                    }
+                }
+            });
+
+            calendar.render();
+
+            // האזנה לקבלת אירוע חדש בזמן אמת
+            socket.on('receive_calendar_event', function(eventData) {
+                calendar.addEvent(eventData);
+            });
+
+            // טעינת אירועים קיימים מהשרת (בעת פתיחת הדף)
+            socket.on('load_calendar_events', function(events) {
+                calendar.removeAllEvents();
+                calendar.addEventSource(events);
+            });
+        });
+    </script>
+</body>
+</html>

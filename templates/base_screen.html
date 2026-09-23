@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naor & Yam - דף הבית</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="main-container">
+        <h1>Naor & Yam App 🤍</h1>
+        <p>בחרו לאן תרצו לעבור:</p>
+
+        <div class="menu-grid">
+            <a href="/updates" class="menu-card">
+                <span class="icon">💬</span>
+                <h3>עדכונים בלייב</h3>
+            </a>
+
+            <a href="/calendar" class="menu-card">
+                <span class="icon">📅</span>
+                <h3>יומן משותף</h3>
+            </a>
+
+              <a href="/setting" class="menu-card">
+                <span class="icon">💬</span>
+                <h3>הגדרות</h3>
+            </a>
+
+             <a href="/ideas" class="menu-card">
+                <span class="icon">💬</span>
+                <h3>רעיונות בילויים משותפים :)</h3>
+            </a>
+
+        </div>
+    </div>
+</body>
+</html>

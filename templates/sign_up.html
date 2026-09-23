@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>יצירת קבוצה חדשה</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function toggleGroupMode() {
+            const mode = document.getElementById("mode").value;
+            const title = document.getElementById("members-title");
+
+            if (mode === "group") {
+                title.textContent = "משתתפים נוספים 👥:";
+            } else {
+                title.textContent = "חברי הזוג 💞:";
+            }
+        }
+
+        function addMemberField() {
+            const membersList = document.getElementById("members-list");
+            const inputs = membersList.getElementsByTagName("input");
+
+            if (inputs.length >= 10) {
+                alert("מקסימום 10 משתתפים לקבוצה 👥");
+                return;
+            }
+
+            const newInput = document.createElement("input");
+            newInput.type = "text";
+            newInput.name = "member_name";
+            newInput.placeholder = `שם משתתף ${inputs.length + 1}`;
+            newInput.classList.add("member-input");
+            newInput.required = true;
+            membersList.appendChild(newInput);
+        }
+
+        function onSubmitForm(event) {
+            const mode = document.getElementById("mode").value;
+            const members = document.querySelectorAll("#members-list input");
+
+            if (mode === "group" && members.length < 2) {
+                alert("חייבים לפחות שני משתתפים בכל קבוצה 💕");
+                event.preventDefault();
+            }
+        }
+    </script>
+</head>
+
+<body class="signup-body">
+<main id="signup-container">
+    <h1>יצירת קבוצה חדשה 🌸</h1>
+
+    <form method="POST" action="/create_group" onsubmit="onSubmitForm(event)">
+        <label for="group_name">שם קבוצה:</label>
+        <input type="text" id="group_name" name="group_name" placeholder="למשל: רותם ואור" required>
+
+        <label for="group_pin">קוד קבוצה (הסיסמה שלכם להתחברות):</label>
+        <input type="text" id="group_pin" name="group_pin" placeholder="למשל: 1234" required>
+
+        <label for="mode">סוג:</label>
+        <select id="mode" name="mode" onchange="toggleGroupMode()">
+            <option value="couple">זוג 💞</option>
+            <option value="group">קבוצה 👥</option>
+        </select>
+
+        <!-- חלק חברי הקבוצה (מוצג כברירת מחדל) -->
+        <section id="members-section" style="display: block; margin-top: 15px;">
+            <h3 id="members-title">חברי הזוג 💞:</h3>
+
+            <div id="members-list">
+                <input type="text" name="member_name" placeholder="שם משתתף ראשון (קוד: 1)" required>
+                <input type="text" name="member_name" placeholder="שם משתתף שני (קוד: 2)" required>
+            </div>
+
+            <br>
+            <button type="button" class="add-btn" onclick="addMemberField()">➕ הוסף משתתף</button>
+            <br><br>
+            <button type="submit" class="submit-btn">צור קבוצה 🚀</button>
+        </section>
+    </form>
+
+    <br>
+    <a class="back-link" href="{{ url_for('home') }}">🔙 חזרה לדף הראשי</a>
+</main>
+</body>
+</html>

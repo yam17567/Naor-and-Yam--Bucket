@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Naor&Yam-Bucket{% endblock %}</title>
+
+    <!-- to CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+
+<body>
+    <div id="main-container">
+        <a href="/" class="back-btn">➡️ חזרה לדף הבית</a>
+        <h1>Naor & Yam App</h1>
+
+
+        <label for="userInput">עדכון חדש:</label>
+        <input type="text" id="userInput" placeholder="כתוב עדכון...">
+        <button onclick="sendData()">שלח עדכון</button>
+
+        <h3>updates:</h3>
+        <ul id="messagesList" style="list-style-type: none; padding: 0;"></ul>
+    </div>
+
+    <script>
+        const socket = io();
+
+        // login
+        socket.on('connect', () => {
+            console.log('LIVE!');
+        });
+        socket.on('load_history', (history) => {
+            console.log('היסטוריה שנשלפה מ-Supabase:', history);
+            const list = document.getElementById('messagesList');
+            if (list) {
+                list.innerHTML = ''; // ניקוי הרשימה לפני טעינה
+                history.forEach(item => {
+                    const newItem = document.createElement('li');
+                    newItem.textContent = item.content; // שם העמודה ב-Supabase
+                    newItem.style.padding = "6px 0";
+                    list.appendChild(newItem);
+                });
+            }
+        });
+       // live up
+        socket.on('receive_update', (data) => {
+            console.log('התקבל עדכון:', data);
+            const list = document.getElementById('messagesList');
+            if (list) {
+                const newItem = document.createElement('li');
+                newItem.textContent = data.message;
+                newItem.style.padding = "6px 0";
+                list.appendChild(newItem);
+            } else {
+                console.error("ERROR: לא נמצא אלמנט עם id='messagesList'");
+            }
+        });
+
+        // send to serv
+        function sendData() {
+            const input = document.getElementById('userInput');
+            if (input && input.value.trim() !== "") {
+                console.log('שולח עדכון:', input.value);
+                socket.emit('send_update', { message: input.value });
+                input.value = '';
+            }
+
+        }
+
+    </script>
+}
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>יצירת קבוצה 💑</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body id="create-page">
+<main id="create-container" class="fade-in">
+    <h1 id="page-title">יצירת זוג 💑</h1>
+
+    <!-- בחירת מצב -->
+    <div id="mode-selector">
+        <button type="button" id="couple-mode" class="active">💑 זוג</button>
+        <button type="button" id="group-mode">👥 קבוצה</button>
+    </div>
+
+    <form id="create-form" method="post">
+        <label for="group-name">שם קבוצה:</label>
+        <input id="group-name" type="text" placeholder="למשל: רותם & אור" required>
+
+        <label for="group-pin">קוד קבוצה:</label>
+        <input id="group-pin" type="text" placeholder="0001" required>
+
+        <div id="members-container">
+            <div class="member">
+                <label>שם משתמש ראשון:</label>
+                <input type="text" name="user1" placeholder="למשל: שני" required>
+                <label>קוד משתמש ראשון:</label>
+                <input type="text" name="user1_pin" placeholder="1" required>
+            </div>
+
+            <div class="member">
+                <label>שם משתמש שני:</label>
+                <input type="text" name="user2" placeholder="למשל: דני" required>
+                <label>קוד משתמש שני:</label>
+                <input type="text" name="user2_pin" placeholder="2" required>
+            </div>
+        </div>
+
+        <!-- כפתור הוספה -->
+        <button type="button" id="add-member-btn" style="display: none;">➕ הוסף משתמש נוסף</button>
+
+        <button type="submit" id="create-btn">צור קבוצה</button>
+    </form>
+
+    <a href="{{ url_for('home') }}" id="back-link">← חזרה לדף הראשי</a>
+</main>
+
+<script>
+    const coupleBtn = document.getElementById("couple-mode");
+    const groupBtn = document.getElementById("group-mode");
+    const addMemberBtn = document.getElementById("add-member-btn");
+    const membersContainer = document.getElementById("members-container");
+    const title = document.getElementById("page-title");
+
+    // החלפת מצב
+    coupleBtn.addEventListener("click", () => {
+        coupleBtn.classList.add("active");
+        groupBtn.classList.remove("active");
+        addMemberBtn.style.display = "none";
+        title.textContent = "יצירת זוג 💑";
+        // מחזירים רק שני משתמשים
+        const members = membersContainer.querySelectorAll(".member");
+        members.forEach((m, i) => {
+            if (i > 1) m.remove();
+        });
+    });
+
+    groupBtn.addEventListener("click", () => {
+        groupBtn.classList.add("active");
+        coupleBtn.classList.remove("active");
+        addMemberBtn.style.display = "block";
+        title.textContent = "יצירת קבוצה 👥";
+    });
+
+    // הוספת משתמש חדש
+    let memberCount = 2;
+    addMemberBtn.addEventListener("click", () => {
+        memberCount++;
+        const div = document.createElement("div");
+        div.classList.add("member");
+        div.innerHTML = `
+                <label>שם משתמש ${memberCount}:</label>
+                <input type="text" name="user${memberCount}" placeholder="משתמש ${memberCount}" required>
+                <label>קוד משתמש ${memberCount}:</label>
+                <input type="text" name="user${memberCount}_pin" placeholder="${memberCount}" required>
+            `;
+        membersContainer.appendChild(div);
+    });
+
+    <a className="back-link" href="{{ url_for('home') }}">🔙 חזרה לדף הראשי</a>
+</script>
+</body>
+</html>

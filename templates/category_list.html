@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>רעיונות - {{ category_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <div id="main-container">
+        <a href="/ideas" class="back-btn">➡️ חזרה לרעיונות</a>
+        <h1>רשימת {{ category_name }} 💡</h1>
+
+        <!-- טופס להוספת רעיון חדש -->
+        <div class="input-container">
+            <input type="text" id="idea-input" placeholder="הוסיפו רעיון חדש...">
+            <button onclick="addIdea()">הוסף ✨</button>
+        </div>
+
+        <!-- רשימת הרעיונות שנשמרו -->
+        <ul id="ideas-list"></ul>
+    </div>
+
+    <script>
+        const socket = io();
+        const categoryKey = "{{ category_key }}"; // למשל: restaurants
+
+        // שליחת רעיון חדש
+        function addIdea() {
+            const input = document.getElementById('idea-input');
+            const ideaText = input.value.trim();
+
+            if (ideaText) {
+                socket.emit('add_idea', {
+                    category: categoryKey,
+                    content: ideaText
+                });
+                input.value = '';
+            }
+        }
+
+        // טעינת רעיונות בקבלת מידע מהשרת
+        socket.on('load_ideas', function(ideas) {
+            const list = document.getElementById('ideas-list');
+            list.innerHTML = '';
+            ideas.forEach(item => {
+                if (item.category === categoryKey) {
+                    const li = document.createElement('li');
+                    li.textContent = item.content;
+                    list.appendChild(li);
+                }
+            });
+        });
+
+        // קבלת רעיון חדש בזמן אמת
+        socket.on('receive_idea', function(data) {
+            if (data.category === categoryKey) {
+                const list = document.getElementById('ideas-list');
+                const li = document.createElement('li');
+                li.textContent = data.content;
+                list.appendChild(li);
+            }
+        });
+    </script>
+</body>
+</html>
