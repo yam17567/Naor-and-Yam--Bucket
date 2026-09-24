@@ -26,13 +26,20 @@
     <form method="POST" action="{{ url_for('login') }}">
         <label for="member_pin">🔑 הכנס קוד משתמש אישי:</label>
         <input id="member_pin" name="member_pin" type="text" placeholder="למשל: 12" required>
+
         <br><br>
+        <!-- כפתור הסימון "זכור אותי" -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px;">
+            <input type="checkbox" id="remember_me" name="remember_me" checked style="width: 18px; height: 18px; cursor: pointer;">
+            <label for="remember_me" style="cursor: pointer; font-size: 0.95em;">זכור אותי במכשיר זה 🔒</label>
+        </div>
+
         <button type="submit" id="login-btn">התחברות 🚀</button>
     </form>
 
     <br>
     <form action="{{ url_for('create_group_form') }}">
-        <button id="new_group-btn">➕ יצירת קבוצה חדשה</button>
+        <button id="new_group-btn">➕ יצירת קבוצה / הצטרפות</button>
     </form>
 </main>
 </body>

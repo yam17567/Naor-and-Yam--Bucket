@@ -2,7 +2,8 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>הרשמה / יצירת קבוצה</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הרשמה / הצטרפות</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script>
         function toggleFormMode() {
@@ -27,12 +28,12 @@
     </script>
 </head>
 <body class="signup-body">
-<main id="signup-container">
-    <h1>הרשמה למערכת 🌸</h1>
+<main id="signup-container" style="max-width: 450px; margin: 40px auto; padding: 25px; background: rgba(255, 255, 255, 0.95); border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+    <h1 style="text-align: center; margin-bottom: 20px;">הרשמה למערכת 🌸</h1>
 
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <div class="flash-message" style="background:#ffebee; color:#c62828; padding:10px; border-radius:8px; margin-bottom:15px;">
+        <div class="flash-message" style="background:#ffebee; color:#c62828; padding:10px; border-radius:8px; margin-bottom:15px; text-align: center;">
           {% for message in messages %}
             <p style="margin:0;">{{ message }}</p>
           {% endfor %}
@@ -41,48 +42,52 @@
     {% endwith %}
 
     <form method="POST" action="/create_group">
-        <!-- פרטי המשתמש הבודד -->
-        <h3>1. הפרטים האישיים שלך:</h3>
-        <label>שמך:</label>
-        <input type="text" name="member_name" placeholder="למשל: ים" required>
+        <!-- 1. פרטי המשתמש הבודד -->
+        <h3 style="color: #333; margin-top: 0;">1. הפרטים האישיים שלך:</h3>
 
-        <label>קוד משתמש אישי להתחברות (Master PIN):</label>
-        <p style="font-size:0.85em; color:#555; margin:2px 0 5px 0;">
-           💡 רמז: הקוד החופשי הקטן ביותר במערכת כרגע הוא <b>{{ suggested_pin }}</b>
+        <label style="display: block; margin-top: 10px; font-weight: bold;">שמך:</label>
+        <input type="text" name="member_name" placeholder="למשל: ים" required style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc;">
+
+        <label style="display: block; margin-top: 15px; font-weight: bold;">קוד משתמש אישי להתחברות:</label>
+        <p style="font-size:0.85em; color:#555; margin:3px 0 6px 0;">
+           💡 רמז: הקוד החופשי הקטן ביותר כרגע במערכת הוא <b>{{ suggested_pin }}</b>
         </p>
-        <input type="text" name="member_pin" placeholder="למשל: {{ suggested_pin }}" required>
+        <input type="text" name="member_pin" placeholder="למשל: {{ suggested_pin }}" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
 
-        <hr style="margin: 20px 0;">
+        <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
 
-        <!-- בחירת הצטרפות או יצירה -->
-        <h3>2. קבוצה:</h3>
-        <label for="action_type">מה ברצונך לעשות?</label>
-        <select id="action_type" name="action_type" onchange="toggleFormMode()">
+        <!-- 2. קבוצה (יצירה / הצטרפות) -->
+        <h3 style="color: #333;">2. הקבוצה שלך:</h3>
+
+        <label for="action_type" style="display: block; margin-top: 10px; font-weight: bold;">מה ברצונך לעשות?</label>
+        <select id="action_type" name="action_type" onchange="toggleFormMode()" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc; font-size: 1em;">
             <option value="join">להצטרף לקבוצה קיימת 👥</option>
-            <option value="create">ליצור קבוצה חדשה ✨</option>
+            <option value="create">ליצור קבוצה חדשה מאפס ✨</option>
         </select>
 
-        <!-- חלק 1: הצטרפות לקבוצה קיימת -->
+        <!-- אופציה א': הצטרפות לקבוצה קיימת -->
         <div id="join-section" style="margin-top: 15px;">
-            <label for="existing_group_pin">הכנס קוד קבוצה קיימת:</label>
-            <input type="text" id="existing_group_pin" name="existing_group_pin" placeholder="למשל: 1001" required>
+            <label style="display: block; font-weight: bold;">הכנס קוד קבוצה קיימת:</label>
+            <input type="text" id="existing_group_pin" name="existing_group_pin" placeholder="למשל: 1001" required style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc;">
         </div>
 
-        <!-- חלק 2: יצירת קבוצה חדשה -->
+        <!-- אופציה ב': יצירת קבוצה חדשה -->
         <div id="create-section" style="display: none; margin-top: 15px;">
-            <label for="new_group_name">שם הקבוצה החדשה:</label>
-            <input type="text" id="new_group_name" name="new_group_name" placeholder="למשל: נעור & ים">
+            <label style="display: block; font-weight: bold;">שם הקבוצה החדשה:</label>
+            <input type="text" id="new_group_name" name="new_group_name" placeholder="למשל: נעור & ים" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc;">
 
-            <label for="new_group_pin">קוד הקבוצה החדשה (שתביא/י לשותף):</label>
-            <input type="text" id="new_group_pin" name="new_group_pin" placeholder="למשל: 555">
+            <label style="display: block; margin-top: 10px; font-weight: bold;">קוד הקבוצה החדשה (לתת לשותף להתחברות):</label>
+            <input type="text" id="new_group_pin" name="new_group_pin" placeholder="למשל: 555" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc;">
         </div>
 
         <br><br>
-        <button type="submit" class="submit-btn">סים הרשמה 🚀</button>
+        <button type="submit" style="width: 100%; padding: 12px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer;">סיום הרשמה 🚀</button>
     </form>
 
     <br>
-    <a href="{{ url_for('home') }}">🔙 חזרה לדף ההתחברות</a>
+    <div style="text-align: center;">
+        <a href="{{ url_for('home') }}" style="color: #555; text-decoration: none;">🔙 חזרה לדף ההתחברות</a>
+    </div>
 </main>
 </body>
 </html>
