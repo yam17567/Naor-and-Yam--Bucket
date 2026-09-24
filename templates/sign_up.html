@@ -2,91 +2,87 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>יצירת קבוצה חדשה</title>
+    <title>הרשמה / יצירת קבוצה</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script>
-        function toggleGroupMode() {
-            const mode = document.getElementById("mode").value;
-            const title = document.getElementById("members-title");
+        function toggleFormMode() {
+            const mode = document.getElementById("action_type").value;
+            const joinSection = document.getElementById("join-section");
+            const createSection = document.getElementById("create-section");
 
-            if (mode === "group") {
-                title.textContent = "משתתפים נוספים 👥:";
+            if (mode === "join") {
+                joinSection.style.display = "block";
+                createSection.style.display = "none";
+                document.getElementById("existing_group_pin").required = true;
+                document.getElementById("new_group_name").required = false;
+                document.getElementById("new_group_pin").required = false;
             } else {
-                title.textContent = "חברי הזוג 💞:";
-            }
-        }
-
-        function addMemberField() {
-            const membersList = document.getElementById("members-list");
-            const inputs = membersList.getElementsByTagName("input");
-
-            if (inputs.length >= 10) {
-                alert("מקסימום 10 משתתפים לקבוצה 👥");
-                return;
-            }
-
-            const newInput = document.createElement("input");
-            newInput.type = "text";
-            newInput.name = "member_name";
-            newInput.placeholder = `שם משתתף ${inputs.length + 1}`;
-            newInput.classList.add("member-input");
-            newInput.required = true;
-            membersList.appendChild(newInput);
-        }
-
-        function onSubmitForm(event) {
-            const mode = document.getElementById("mode").value;
-            const members = document.querySelectorAll("#members-list input");
-
-            if (mode === "group" && members.length < 2) {
-                alert("חייבים לפחות שני משתתפים בכל קבוצה 💕");
-                event.preventDefault();
+                joinSection.style.display = "none";
+                createSection.style.display = "block";
+                document.getElementById("existing_group_pin").required = false;
+                document.getElementById("new_group_name").required = true;
+                document.getElementById("new_group_pin").required = true;
             }
         }
     </script>
 </head>
-
 <body class="signup-body">
 <main id="signup-container">
-    <h1>יצירת קבוצה חדשה 🌸</h1>
+    <h1>הרשמה למערכת 🌸</h1>
 
-    <form method="POST" action="/create_group" onsubmit="onSubmitForm(event)">
-        <label for="group_name">שם קבוצה:</label>
-        <input type="text" id="group_name" name="group_name" placeholder="למשל: רותם ואור" required>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash-message" style="background:#ffebee; color:#c62828; padding:10px; border-radius:8px; margin-bottom:15px;">
+          {% for message in messages %}
+            <p style="margin:0;">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
-        <label for="group_pin">קוד קבוצה (הסיסמה שלכם להתחברות):</label>
-        <input type="text" id="group_pin" name="group_pin" placeholder="למשל: 1234" required>
+    <form method="POST" action="/create_group">
+        <!-- פרטי המשתמש הבודד -->
+        <h3>1. הפרטים האישיים שלך:</h3>
+        <label>שמך:</label>
+        <input type="text" name="member_name" placeholder="למשל: ים" required>
 
-        <label for="mode">סוג:</label>
-        <select id="mode" name="mode" onchange="toggleGroupMode()">
-            <option value="couple">זוג 💞</option>
-            <option value="group">קבוצה 👥</option>
+        <label>קוד משתמש אישי להתחברות (Master PIN):</label>
+        <p style="font-size:0.85em; color:#555; margin:2px 0 5px 0;">
+           💡 רמז: הקוד החופשי הקטן ביותר במערכת כרגע הוא <b>{{ suggested_pin }}</b>
+        </p>
+        <input type="text" name="member_pin" placeholder="למשל: {{ suggested_pin }}" required>
+
+        <hr style="margin: 20px 0;">
+
+        <!-- בחירת הצטרפות או יצירה -->
+        <h3>2. קבוצה:</h3>
+        <label for="action_type">מה ברצונך לעשות?</label>
+        <select id="action_type" name="action_type" onchange="toggleFormMode()">
+            <option value="join">להצטרף לקבוצה קיימת 👥</option>
+            <option value="create">ליצור קבוצה חדשה ✨</option>
         </select>
 
-        <!-- חלק חברי הקבוצה (מוצג כברירת מחדל) -->
-        <section id="members-section" style="display: block; margin-top: 15px;">
-            <h3>חברי הקבוצה והקודים האישיים שלהם 💞:</h3>
-            <p class="hint-text">💡 רמז: הקוד החופשי הקטן ביותר כרגע במערכת הוא <b>{{ suggested_pin }}</b></p>
-            <div id="members-list">
-                <div class="member-row">
-                    <input type="text" name="member_name" placeholder="שם משתמש 1" required>
-                    <input type="text" name="member_pin" placeholder="קוד אישי (למשל: {{ suggested_pin }})" required>
-                </div>
-                <div class="member-row">
-                    <input type="text" name="member_name" placeholder="שם משתמש 2" required>
-                    <input type="text" name="member_pin" placeholder="קוד אישי" required>
-                </div>
-            </div>
-            <br>
-            <button type="button" class="add-btn" onclick="addMemberField()">➕ הוסף משתתף</button>
-            <br><br>
-            <button type="submit" class="submit-btn">צור קבוצה 🚀</button>
-        </section>
+        <!-- חלק 1: הצטרפות לקבוצה קיימת -->
+        <div id="join-section" style="margin-top: 15px;">
+            <label for="existing_group_pin">הכנס קוד קבוצה קיימת:</label>
+            <input type="text" id="existing_group_pin" name="existing_group_pin" placeholder="למשל: 1001" required>
+        </div>
+
+        <!-- חלק 2: יצירת קבוצה חדשה -->
+        <div id="create-section" style="display: none; margin-top: 15px;">
+            <label for="new_group_name">שם הקבוצה החדשה:</label>
+            <input type="text" id="new_group_name" name="new_group_name" placeholder="למשל: נעור & ים">
+
+            <label for="new_group_pin">קוד הקבוצה החדשה (שתביא/י לשותף):</label>
+            <input type="text" id="new_group_pin" name="new_group_pin" placeholder="למשל: 555">
+        </div>
+
+        <br><br>
+        <button type="submit" class="submit-btn">סים הרשמה 🚀</button>
     </form>
 
     <br>
-    <a class="back-link" href="{{ url_for('home') }}">🔙 חזרה לדף הראשי</a>
+    <a href="{{ url_for('home') }}">🔙 חזרה לדף ההתחברות</a>
 </main>
 </body>
 </html>
